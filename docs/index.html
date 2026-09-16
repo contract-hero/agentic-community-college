@@ -5,28 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Agentic Community College — coding lessons that run inside Claude Code</title>
   <meta name="description" content="A Claude Code plugin that turns a session into a coding tutor. Bring your own course; ACC implements each chapter until its tests pass, explains it with an HTML artifact, and closes with an end-to-end test.">
+  <link rel="icon" type="image/png" href="assets/contract-hero.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #fafaf7;
-      --surface: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --border: #e5e7eb;
-      --accent: #0f4c75;
-      --accent-soft: #e6eef4;
-      --code-bg: #f1f5f9;
-      --warn: #92400e;
-      --warn-soft: #fef3c7;
+    :root{
+      --bg:#0b0f0c;
+      --bg-2:#0e1410;
+      --bg-code:#060907;
+      --ink:#dfe6e0;
+      --ink-2:#b9c6bd;
+      --muted:#9fb0a4;
+      --muted-2:#8ea095;
+      --dim:#6b7d70;
+      --g:#3df08a;
+      --g-line:#245c3b;
+      --line:#1f2a22;
+      --r:2px;
+      --wrap:1180px;
+      --sans:"Space Grotesk",system-ui,sans-serif;
+      --mono:"JetBrains Mono",ui-monospace,monospace;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 17px;
-      line-height: 1.55;
-      color: var(--text);
       background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.6 var(--sans);
       -webkit-font-smoothing: antialiased;
     }
     .wrap {
@@ -34,83 +41,124 @@
       margin: 0 auto;
       padding: 0 24px;
     }
+    h1, h2, h3 {
+      font-family: var(--sans);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
     header.site {
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg);
     }
     header.site .wrap {
+      max-width: var(--wrap);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 16px;
-      padding-bottom: 16px;
+      padding-top: 14px;
+      padding-bottom: 14px;
     }
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-weight: 600;
-      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--g);
       text-decoration: none;
-      letter-spacing: -0.01em;
     }
     .brand span { white-space: nowrap; }
+    .brand span::after { content: "_"; }
+    @media (prefers-reduced-motion: no-preference) {
+      .brand span::after { animation: blink 1.1s steps(1) infinite; }
+    }
+    @keyframes blink { 50% { opacity: 0; } }
     .brand-mark {
       width: 28px;
       height: 28px;
       flex: none;
+      display: block;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
     }
     nav.site-nav a {
       color: var(--muted);
       text-decoration: none;
       margin-left: 16px;
-      font-size: 14px;
+      font-family: var(--mono);
+      font-size: 13px;
     }
-    nav.site-nav a:hover { color: var(--accent); }
+    nav.site-nav a:hover { color: var(--g); }
+    .by-ch {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--dim);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .by-ch:hover { color: var(--g); border-bottom-color: var(--g-line); }
     /* Toggle is mobile-only; the wide layout shows the links inline. */
     .nav-toggle,
     .nav-toggle-btn { display: none; }
 
     section { padding: 56px 0; }
-    section + section { border-top: 1px solid var(--border); }
+    section + section { border-top: 1px solid var(--line); }
 
     .hero {
-      padding-top: 72px;
+      padding-top: 64px;
       padding-bottom: 48px;
+    }
+    .hero-banner-wrap {
+      position: relative;
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      margin: 0 0 32px 0;
+      overflow: hidden;
     }
     .hero-banner {
       display: block;
       width: 100%;
       height: auto;
-      border-radius: 10px;
-      margin: 0 0 32px 0;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      filter: grayscale(1);
+    }
+    .hero-banner-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(61,240,138,.18), rgba(61,240,138,.05));
+      mix-blend-mode: screen;
+      pointer-events: none;
     }
     .eyebrow {
-      display: inline-block;
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 4px 10px;
-      border-radius: 999px;
+      display: block;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--g);
       margin-bottom: 18px;
     }
+    .eyebrow::before { content: "$ whoami  \2192  "; color: var(--dim); }
     h1 {
-      font-size: clamp(28px, 4.2vw, 42px);
-      line-height: 1.15;
-      letter-spacing: -0.02em;
+      font-size: clamp(44px, 6vw, 84px);
       margin: 0 0 18px 0;
-      max-width: 22ch;
+      max-width: 18ch;
     }
     h1 em {
       font-style: normal;
-      color: var(--accent);
+      color: var(--g);
     }
     .lede {
       font-size: 19px;
-      color: var(--muted);
+      color: var(--ink-2);
       max-width: 62ch;
       margin: 0 0 28px 0;
     }
@@ -122,44 +170,59 @@
     }
     .btn {
       display: inline-block;
-      padding: 10px 18px;
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 15px;
+      padding: 11px 18px;
+      border-radius: var(--r);
+      font-family: var(--mono);
+      font-size: 13px;
       text-decoration: none;
       border: 1px solid transparent;
-      transition: background 120ms ease, border-color 120ms ease;
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
     }
     .btn-primary {
-      background: var(--accent);
-      color: #fff;
+      background: var(--g);
+      color: #04140a;
+      box-shadow: 0 0 18px rgba(61,240,138,.25);
     }
-    .btn-primary:hover { background: #0c3d5d; }
+    .btn-primary:hover { background: #63f5a4; }
     .btn-secondary {
       background: transparent;
-      color: var(--accent);
-      border-color: var(--border);
+      color: var(--g);
+      border-color: var(--g-line);
     }
-    .btn-secondary:hover { border-color: var(--accent); }
+    .btn-secondary:hover { border-color: var(--g); }
 
     h2 {
-      font-size: clamp(22px, 2.4vw, 28px);
-      letter-spacing: -0.015em;
-      margin: 0 0 12px 0;
+      font-size: clamp(28px, 3.4vw, 44px);
+      margin: 0 0 14px 0;
+    }
+    h2::before {
+      content: "## ";
+      color: var(--g);
+      font-family: var(--mono);
+      font-size: .6em;
+      vertical-align: middle;
     }
     h2 + p.section-lede {
-      color: var(--muted);
+      color: var(--muted-2);
       margin: 0 0 32px 0;
       max-width: 60ch;
     }
 
+    a { color: var(--g); }
+    p a, li a, figcaption a, .section-lede a {
+      color: var(--g);
+      text-decoration: none;
+      border-bottom: 1px solid var(--g-line);
+    }
+    p a:hover, li a:hover, .section-lede a:hover { border-bottom-color: var(--g); }
+
     figure.diagram {
       margin: 0 auto;
       max-width: 720px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 24px;
+      background: linear-gradient(180deg, var(--bg-2), var(--bg));
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 32px;
     }
     figure.diagram svg {
       width: 100%;
@@ -167,8 +230,9 @@
       display: block;
     }
     figcaption {
-      color: var(--muted);
-      font-size: 14px;
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 12.5px;
       margin-top: 16px;
       text-align: center;
     }
@@ -176,24 +240,24 @@
     .cards {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
     }
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 22px;
+      background: var(--bg);
+      padding: 18px;
     }
     .card h3 {
-      margin: 0 0 6px 0;
+      margin: 0 0 8px 0;
       font-size: 17px;
-      letter-spacing: -0.01em;
+      color: var(--ink);
     }
     .card .tag {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--g);
       display: block;
       margin-bottom: 8px;
     }
@@ -204,10 +268,10 @@
     }
     .card h3 code { font-size: 0.95em; }
     .cards-featured { grid-template-columns: 2fr 1fr; }
-    .card.featured { border-color: var(--accent); }
+    .card.featured { background: linear-gradient(180deg, var(--bg-2), var(--bg)); }
     .card ol { margin: 8px 0 12px; padding-left: 20px; color: var(--muted); font-size: 15px; }
     .card ol li { margin: 6px 0; }
-    .card ol strong { color: var(--fg); }
+    .card ol strong { color: var(--ink); font-weight: 500; }
     .card.featured p + p { margin-top: 10px; }
     .previous-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: 15px; }
     .previous-list li { margin: 8px 0; }
@@ -215,23 +279,27 @@
     .card .cmd { margin-top: 12px; }
 
     pre {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      background: var(--bg-code);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
       padding: 14px 16px;
       overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-      font-size: 14px;
-      line-height: 1.5;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--g);
       margin: 0 0 16px 0;
     }
-    code { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+    code { font-family: var(--mono); }
     p code, li code {
-      background: var(--code-bg);
+      background: var(--bg-code);
+      border: 1px solid var(--line);
+      color: var(--g);
       padding: 1px 5px;
-      border-radius: 4px;
-      font-size: 0.92em;
+      border-radius: var(--r);
+      font-size: 0.88em;
     }
+    p a code, li a code { color: inherit; }
 
     .step {
       display: grid;
@@ -242,18 +310,20 @@
     .step .n {
       width: 28px;
       height: 28px;
-      border-radius: 50%;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 600;
-      font-size: 14px;
+      border: 1px solid var(--g-line);
+      border-radius: var(--r);
+      background: transparent;
+      color: var(--g);
+      font-family: var(--mono);
+      font-size: 13px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .step h3 {
-      margin: 2px 0 4px 0;
+      margin: 3px 0 6px 0;
       font-size: 16px;
+      color: var(--ink);
     }
     .step p {
       margin: 0 0 6px 0;
@@ -262,21 +332,23 @@
     }
 
     aside.note {
-      background: var(--warn-soft);
-      border-left: 3px solid var(--warn);
-      color: var(--text);
-      padding: 12px 16px;
-      border-radius: 6px;
+      background: linear-gradient(180deg, var(--bg-2), var(--bg));
+      border: 1px solid var(--line);
+      border-left: 2px solid var(--g-line);
+      color: var(--muted);
+      padding: 14px 16px;
+      border-radius: var(--r);
       font-size: 14px;
       margin: 16px 0 0 0;
     }
-    aside.note strong { color: var(--warn); }
+    aside.note strong { color: var(--g); font-weight: 500; }
 
     footer.site {
-      border-top: 1px solid var(--border);
+      border-top: 1px solid var(--line);
       padding: 28px 0 40px 0;
-      color: var(--muted);
-      font-size: 14px;
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 12.5px;
     }
     footer.site .wrap {
       display: flex;
@@ -285,15 +357,21 @@
       justify-content: space-between;
       align-items: center;
     }
-    footer.site a, .card a { color: var(--accent); text-decoration: none; }
-    footer.site a:hover, .card a:hover { text-decoration: underline; }
+    footer.site .links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    footer.site a {
+      color: var(--dim);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+    }
+    footer.site a:hover { color: var(--g); border-bottom-color: var(--g-line); }
+    footer.site .cross a { color: var(--muted-2); }
 
-    /* The inline row needs 856px. Above 960px .wrap caps content at 912px,
-       so the row always has slack; at or below 960px it collapses. */
-    @media (max-width: 960px) {
+    /* The mono nav row needs ~1030px inside the header wrap (max 1180px).
+       Above 1100px the row always has slack; at or below 1100px it collapses. */
+    @media (max-width: 1100px) {
       header.site .wrap { flex-wrap: wrap; }
       .brand { min-width: 0; }
-      .brand span { font-size: 15px; }
+      .brand span { font-size: 13px; }
 
       /* Focusable, but off-screen: the label is the visible control. */
       .nav-toggle {
@@ -315,13 +393,13 @@
         width: 44px;
         height: 44px;
         margin-right: -10px;
-        border-radius: 8px;
-        color: var(--text);
+        border-radius: var(--r);
+        color: var(--muted);
         cursor: pointer;
       }
-      .nav-toggle-btn:hover { color: var(--accent); }
+      .nav-toggle-btn:hover { color: var(--g); }
       .nav-toggle:focus-visible + .nav-toggle-btn {
-        outline: 2px solid var(--accent);
+        outline: 2px solid var(--g);
         outline-offset: 2px;
       }
       .nav-icon { width: 24px; height: 24px; }
@@ -334,24 +412,26 @@
         display: none;
         flex-basis: 100%;
         flex-direction: column;
-        margin-top: 16px;
-        border-top: 1px solid var(--border);
+        margin-top: 14px;
+        border-top: 1px solid var(--line);
       }
       .nav-toggle:checked ~ nav.site-nav { display: flex; }
       nav.site-nav a {
         margin-left: 0;
         padding: 12px 2px;
-        font-size: 16px;
-        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+        border-bottom: 1px solid var(--line);
       }
       nav.site-nav a:last-child { border-bottom: none; }
     }
 
     @media (max-width: 720px) {
       section { padding: 40px 0; }
-      .hero { padding-top: 48px; }
+      .hero { padding-top: 44px; }
       .cards { grid-template-columns: 1fr; }
       .lede { font-size: 17px; }
+      figure.diagram { padding: 18px; }
+      h1 { max-width: none; }
     }
   </style>
 </head>
@@ -359,10 +439,7 @@
   <header class="site">
     <div class="wrap">
       <a class="brand" href="#top">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <rect x="2" y="2" width="28" height="28" rx="6" fill="#0f4c75"/>
-          <path d="M9 22 L16 8 L23 22 M11.5 17 L20.5 17" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img class="brand-mark" src="assets/contract-hero.png" alt="" width="28" height="28">
         <span>Agentic Community College</span>
       </a>
       <input class="nav-toggle" type="checkbox" id="nav-toggle" aria-label="Show navigation menu">
@@ -389,7 +466,9 @@
   <main>
     <section class="hero" id="top">
       <div class="wrap">
-        <img class="hero-banner" src="./banner.png" alt="Agentic Community College — silhouetted learners with laptops in front of a brutalist concrete building, Matrix-green glow">
+        <span class="hero-banner-wrap">
+          <img class="hero-banner" src="./banner.png" alt="Agentic Community College — silhouetted learners with laptops in front of a brutalist concrete building, Matrix-green glow">
+        </span>
         <span class="eyebrow">Claude Code Plugin</span>
         <h1>Coding lessons that <em>run inside</em> Claude Code &mdash; and ship verified work.</h1>
         <p class="lede">
@@ -418,56 +497,57 @@
           <svg viewBox="0 0 680 360" role="img" aria-label="Architecture: Claude Code loads ACC, which discovers course plugins (acc-claude-sdk, previous v0.2 courses, or your own) and runs lessons chapter by chapter: tests pass, one HTML artifact per chapter, then an end-to-end test and a summary.">
             <defs>
               <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+                <path d="M0,0 L10,5 L0,10 z" fill="#6b7d70"/>
               </marker>
             </defs>
 
-            <!-- Layer labels -->
-            <text x="20" y="32" font-size="11" letter-spacing="1.5" fill="#475569" font-family="system-ui">RUNTIME</text>
-            <text x="20" y="132" font-size="11" letter-spacing="1.5" fill="#475569" font-family="system-ui">FRAMEWORK</text>
-            <text x="20" y="232" font-size="11" letter-spacing="1.5" fill="#475569" font-family="system-ui">CONTENT</text>
-            <text x="20" y="332" font-size="11" letter-spacing="1.5" fill="#475569" font-family="system-ui">OUTPUT</text>
-
             <!-- Runtime: Claude Code -->
-            <rect x="240" y="14" width="200" height="44" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
-            <text x="340" y="42" font-size="14" font-weight="600" text-anchor="middle" font-family="system-ui" fill="#0f172a">Claude Code session</text>
+            <rect x="240" y="14" width="200" height="44" rx="2" fill="#0b0f0c" stroke="#1f2a22"/>
+            <text x="340" y="42" font-size="14" font-weight="500" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#dfe6e0">Claude Code session</text>
 
             <!-- Arrow down -->
-            <line x1="340" y1="62" x2="340" y2="92" stroke="#475569" stroke-width="1.4" marker-end="url(#arrow)"/>
+            <line x1="340" y1="62" x2="340" y2="92" stroke="#6b7d70" stroke-width="1.4" marker-end="url(#arrow)"/>
 
             <!-- Framework: ACC plugin -->
-            <rect x="170" y="96" width="340" height="78" rx="8" fill="#e6eef4" stroke="#0f4c75"/>
-            <text x="340" y="120" font-size="14" font-weight="600" text-anchor="middle" font-family="system-ui" fill="#0f4c75">ACC framework plugin</text>
-            <text x="340" y="142" font-size="12" text-anchor="middle" font-family="system-ui" fill="#475569">MCP server &middot; course-conductor agent</text>
-            <text x="340" y="158" font-size="12" text-anchor="middle" font-family="system-ui" fill="#475569">authoring &amp; runtime skills</text>
+            <rect x="170" y="96" width="340" height="78" rx="2" fill="#0e1410" stroke="#245c3b"/>
+            <text x="340" y="120" font-size="14" font-weight="500" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#3df08a">ACC framework plugin</text>
+            <text x="340" y="142" font-size="12" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#9fb0a4">MCP server &middot; course-conductor agent</text>
+            <text x="340" y="158" font-size="12" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#9fb0a4">authoring &amp; runtime skills</text>
 
             <!-- Arrow down -->
-            <line x1="340" y1="178" x2="340" y2="200" stroke="#475569" stroke-width="1.4" marker-end="url(#arrow)"/>
-            <text x="352" y="194" font-size="11" font-family="system-ui" fill="#475569">discovers</text>
+            <line x1="340" y1="178" x2="340" y2="200" stroke="#6b7d70" stroke-width="1.4" marker-end="url(#arrow)"/>
+            <text x="352" y="194" font-size="11" font-family="JetBrains Mono,monospace" fill="#6b7d70">discovers</text>
 
             <!-- Content: Course plugins -->
-            <rect x="60" y="204" width="180" height="64" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
-            <text x="150" y="226" font-size="12" font-weight="600" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" fill="#0f172a">acc-claude-sdk</text>
-            <text x="150" y="246" font-size="11" text-anchor="middle" font-family="system-ui" fill="#475569">Claude Agent SDK lessons</text>
-            <text x="150" y="260" font-size="11" text-anchor="middle" font-family="system-ui" fill="#475569">docs &middot; chapters &middot; tests</text>
+            <rect x="60" y="204" width="180" height="64" rx="2" fill="#0b0f0c" stroke="#1f2a22"/>
+            <text x="150" y="226" font-size="12" font-weight="500" text-anchor="middle" font-family="JetBrains Mono,monospace" fill="#3df08a">acc-claude-sdk</text>
+            <text x="150" y="246" font-size="11" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#9fb0a4">Claude Agent SDK lessons</text>
+            <text x="150" y="260" font-size="11" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#9fb0a4">docs &middot; chapters &middot; tests</text>
 
-            <rect x="250" y="204" width="180" height="64" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
-            <text x="340" y="226" font-size="13" font-weight="600" text-anchor="middle" font-family="system-ui" fill="#0f172a">Previous work</text>
-            <text x="340" y="246" font-size="11" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" fill="#475569">acc-deepbook-course &middot; acc-evm-wal</text>
-            <text x="340" y="260" font-size="11" text-anchor="middle" font-family="system-ui" fill="#475569">v0.2 model, pending migration</text>
+            <rect x="250" y="204" width="180" height="64" rx="2" fill="#0b0f0c" stroke="#1f2a22"/>
+            <text x="340" y="226" font-size="13" font-weight="500" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#dfe6e0">Previous work</text>
+            <text x="340" y="246" font-size="8.5" text-anchor="middle" font-family="JetBrains Mono,monospace" fill="#9fb0a4">acc-deepbook-course &middot; acc-evm-wal</text>
+            <text x="340" y="260" font-size="11" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#9fb0a4">v0.2 model, pending migration</text>
 
-            <rect x="440" y="204" width="180" height="64" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-dasharray="4 3"/>
-            <text x="530" y="226" font-size="13" font-weight="600" text-anchor="middle" font-family="system-ui" fill="#0f172a">Your course</text>
-            <text x="530" y="246" font-size="11" text-anchor="middle" font-family="system-ui" fill="#475569">scaffold via</text>
-            <text x="530" y="260" font-size="11" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" fill="#475569">/create-course</text>
+            <rect x="440" y="204" width="180" height="64" rx="2" fill="#0b0f0c" stroke="#1f2a22" stroke-dasharray="4 3"/>
+            <text x="530" y="226" font-size="13" font-weight="500" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#dfe6e0">Your course</text>
+            <text x="530" y="246" font-size="11" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#9fb0a4">scaffold via</text>
+            <text x="530" y="260" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace" fill="#3df08a">/create-course</text>
 
             <!-- Arrow down from course A -->
-            <line x1="150" y1="272" x2="150" y2="298" stroke="#475569" stroke-width="1.4" marker-end="url(#arrow)"/>
+            <line x1="150" y1="272" x2="150" y2="298" stroke="#6b7d70" stroke-width="1.4" marker-end="url(#arrow)"/>
 
             <!-- Output: Lesson run -->
-            <rect x="60" y="302" width="560" height="50" rx="8" fill="#ffffff" stroke="#0f4c75"/>
-            <text x="340" y="324" font-size="13" font-weight="600" text-anchor="middle" font-family="system-ui" fill="#0f172a">Lesson run: chapters &rarr; tests pass &rarr; artifact each &rarr; e2e + summary</text>
-            <text x="340" y="342" font-size="11" text-anchor="middle" font-family="system-ui" fill="#475569">scaffold + tests seeded into <tspan font-family="ui-monospace,Menlo,monospace">~/.acc/workspaces/&lt;slug&gt;/</tspan> &middot; the agent writes the solution</text>
+            <rect x="60" y="302" width="560" height="50" rx="2" fill="#0e1410" stroke="#245c3b"/>
+            <text x="340" y="324" font-size="13" font-weight="500" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#dfe6e0">Lesson run: chapters &rarr; tests pass &rarr; artifact each &rarr; e2e + summary</text>
+            <text x="340" y="342" font-size="11" text-anchor="middle" font-family="Space Grotesk,system-ui" fill="#9fb0a4">scaffold + tests seeded into <tspan font-family="JetBrains Mono,monospace" fill="#3df08a">~/.acc/workspaces/&lt;slug&gt;/</tspan> &middot; the agent writes the solution</text>
+
+            <!-- Layer labels -->
+            <text x="12" y="32" font-size="9" letter-spacing="1" fill="#6b7d70" font-family="JetBrains Mono,monospace">RUNTIME</text>
+            <text x="12" y="132" font-size="9" letter-spacing="1" fill="#6b7d70" font-family="JetBrains Mono,monospace">FRAMEWORK</text>
+            <text x="12" y="232" font-size="9" letter-spacing="1" fill="#6b7d70" font-family="JetBrains Mono,monospace">CONTENT</text>
+            <text x="12" y="332" font-size="9" letter-spacing="1" fill="#6b7d70" font-family="JetBrains Mono,monospace">OUTPUT</text>
+
           </svg>
           <figcaption>One framework plugin, many course plugins, any number of lessons.</figcaption>
         </figure>
@@ -663,14 +743,20 @@
   <footer class="site">
     <div class="wrap">
       <div>
-        Agentic Community College &middot; open framework
+        Agentic Community College &middot; open framework &middot;
+        <a class="by-ch" href="https://contracthero.dev">by Contract Hero</a>
       </div>
-      <div>
+      <div class="links">
         <a href="https://github.com/contract-hero/agentic-community-college">Source</a> &middot;
         <a href="https://github.com/contract-hero/acc-claude-sdk">acc-claude-sdk</a> &middot;
         <a href="https://github.com/contract-hero/acc-deepbook-course">acc-deepbook-course</a> &middot;
         <a href="https://github.com/contract-hero/acc-evm-wal">acc-evm-wal</a> &middot;
         <a href="https://github.com/contract-hero/plugin-marketplace">Marketplace</a>
+      </div>
+      <div class="links cross">
+        <a href="https://contracthero.dev">contracthero.dev</a> &middot;
+        <a href="https://contract-hero.github.io/plugin-marketplace/">Plugin marketplace</a> &middot;
+        <a href="https://github.com/contract-hero">GitHub</a>
       </div>
     </div>
   </footer>
